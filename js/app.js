@@ -1,22 +1,31 @@
+var allEnemies = [];
+
 var initY = function () {
     var numTilesY = 3;
     var num = Math.floor(Math.random() * numTilesY + 1);
-    var y = (num === 1) ? 60 : (num === 2) ? 145 : 225;
+    var pos = [60, 145, 225];
+    var y = pos[num - 1];
     return y;
 };
 
 var initX = function (y) {
     var numTilesX = 5;
     var num = Math.floor(Math.random() * numTilesX + 1);
-    var x = (num == 5) ? -540 : (num == 4) ? -460 : (num == 3) ? -340 : (num == 2) ? -220 : -100;
-    if (allEnemies) {
-        for (var i = 0, j = allEnemies.length; i < j; i++) {
-            if (allEnemies[i].y == y && (allEnemies[i].x <= x || allEnemies[i].x == x)) {
-                console.log('gotcha');
-
-                //this.x = Math.max(allEnemies[]);
-            }
+    var pos = [-100, -220, -340, -460, -540];
+    var x = pos[num - 1];
+    for (var i = 0, j = allEnemies.length; i < j; i++) {
+        if (allEnemies[i].y == y &&
+            /*(x >= allEnemies[i].x && x <= allEnemies[i].x + 120 ||
+                x < allEnemies[i].x && x + 120 >= allEnemies[i].x ||
+                allEnemies[i].x >= x && allEnemies[i].x <= x + 120 ||
+                allEnemies[i].x < x && allEnemies[i].x + 120 >= x
+            ))*/
+            ((x >= allEnemies[i].x && x > allEnemies[i].x + 120) ||
+                (x <= allEnemies[i].x && x + 120 < allEnemies[i].x))) {
             return x;
+        } else if (i = 4) {
+            console.log('looser');
+            i--;
         }
     }
     return x;
@@ -32,8 +41,8 @@ var Enemy = function () {
     this.height = 83;
 };
 
-// Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
+// multiply any movement by the dt parameter to ensure the game runs at the same speed for all computers.
 Enemy.prototype.update = function (dt) {
     this.x += this.vx;
     this.y += this.vy;
@@ -41,14 +50,20 @@ Enemy.prototype.update = function (dt) {
         this.y = initY();
         this.x = initX(this.y);
     }
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
 };
 
 Enemy.prototype.render = function () {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
+
+Enemy.prototype.add = function () {
+    allEnemies.push(this);
+}
+
+
+
+
+
 
 var Player = function () {
     this.sprite = 'images/char-cat-girl.png';
@@ -75,12 +90,15 @@ Player.prototype.handleInput = function (input) {
 
 
 var enemy1 = new Enemy();
+enemy1.add();
 var enemy2 = new Enemy();
+enemy2.add();
 var enemy3 = new Enemy();
+enemy3.add();
 var enemy4 = new Enemy();
+enemy4.add();
 var enemy5 = new Enemy();
-
-var allEnemies = [enemy1, enemy2, enemy3, enemy4, enemy5];
+enemy5.add();
 
 var player = new Player();
 
