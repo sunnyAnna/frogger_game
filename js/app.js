@@ -14,18 +14,10 @@ var initX = function (y) {
     var pos = [-100, -220, -340, -460, -540];
     var x = pos[num - 1];
     for (var i = 0, j = allEnemies.length; i < j; i++) {
-        if (allEnemies[i].y == y &&
-            /*(x >= allEnemies[i].x && x <= allEnemies[i].x + 120 ||
-                x < allEnemies[i].x && x + 120 >= allEnemies[i].x ||
-                allEnemies[i].x >= x && allEnemies[i].x <= x + 120 ||
-                allEnemies[i].x < x && allEnemies[i].x + 120 >= x
-            ))*/
-            ((x >= allEnemies[i].x && x > allEnemies[i].x + 120) ||
-                (x <= allEnemies[i].x && x + 120 < allEnemies[i].x))) {
-            return x;
-        } else if (i = 4) {
-            console.log('looser');
-            i--;
+        if (y == allEnemies[i].y && (x > allEnemies[i].x + 120 || x + 120 < allEnemies[i].x)) {
+            break;
+        } else if (i = j - 1) {
+            i=?;
         }
     }
     return x;
@@ -33,23 +25,21 @@ var initX = function (y) {
 
 var Enemy = function () {
     this.sprite = 'images/enemy-bug.png';
-    this.y = initY();
-    this.x = initX(this.y);
     this.vx = 1;
-    this.vy = 0;
     this.width = 101;
     this.height = 83;
+    this.y = initY();
+    this.x = initX(this.y);
 };
 
 // Parameter: dt, a time delta between ticks
 // multiply any movement by the dt parameter to ensure the game runs at the same speed for all computers.
 Enemy.prototype.update = function (dt) {
-    this.x += this.vx;
-    this.y += this.vy;
     if (this.x == 500) {
         this.y = initY();
         this.x = initX(this.y);
     }
+    this.x += this.vx;
 };
 
 Enemy.prototype.render = function () {
