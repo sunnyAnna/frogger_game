@@ -1,6 +1,4 @@
 var allEnemies = [];
-var boardX = [];
-var boardY = [];
 var numTilesX = 5;
 var numTilesY = 3;
 var rightBorder = 600;
@@ -12,7 +10,6 @@ var Enemy = function () {
     this.height = 83;
     this.y = this.initXY(numTilesY, this.height) - 23;
     this.x = -(this.initXY(numTilesX, this.width));
-    this.active = this.overlap();
 };
 
 Enemy.prototype.add = function () {
@@ -37,30 +34,24 @@ Enemy.prototype.update = function (dt) {
 };
 
 Enemy.prototype.overlap = function () {
-    for (var i = 0; i < boardY.length; i++) {
-        if (boardY[i] == this.y && boardX[i] == this.x) {
+    for (var i = 0; i < allEnemies.length; i++) {
+        if (allEnemies[i].y == this.y && allEnemies[i].x == this.x) {
             console.log('double');
-            return this.active = false;
-        } else if (boardY[i] == this.y && boardX[i] != this.x) {
-            return this.active = true;
+            this.x -= this.width;
+            break;
         }
     };
+    return this.x;
 };
 
 Enemy.prototype.collision = function () {
-        for (var i = 0; i < boardY.length; i++) {
+    for (var i = 0; i < allEnemies.length; i++) {
 
-        };
+    };
 };
 
 Enemy.prototype.render = function () {
-    if (this.active = true) {
-        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-        boardX.unshift(this.x);
-        boardX = boardX.splice(0, 4);
-        boardY.unshift(this.y);
-        boardY = boardY.splice(0, 4);
-    };
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 
