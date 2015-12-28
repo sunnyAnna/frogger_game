@@ -1,30 +1,28 @@
 var allEnemies = [];
-/*
-function initXY(numTiles, pos) {
-    var number = Math.floor(Math.random() * numTiles + 1);
-    var a = pos[number - 1];
-    return a;
-};*/
-
-function initXY(spacing){
-var a = spacing.shift();
-spacing.push(a);
-return a;
-};
-
+var boardX = [];
+var boardY = [];
 var numTilesX = 5;
 var numTilesY = 3;
-var spacingX = [-100, -220, -340, -460, -540];
-var spacingY = [60, 145, 225];
-var rightBorder = 500;
+var rightBorder = 600;
 
 var Enemy = function () {
     this.sprite = 'images/enemy-bug.png';
     this.vx = 1;
-    this.width = 101;
+    this.width = 120;
     this.height = 83;
-    this.y = initXY(spacingY);
-    this.x = initXY(spacingX);
+    this.y = this.initXY(numTilesY, this.height) - 23;
+    this.x = -(this.initXY(numTilesX, this.width));
+    this.active = this.overlap();
+};
+
+Enemy.prototype.add = function () {
+    allEnemies.push(this);
+};
+
+Enemy.prototype.initXY = function (numTiles, position) {
+    var number = Math.floor(Math.random() * numTiles + 1);
+    var a = number * position;
+    return a;
 };
 
 // Parameter: dt, a time delta between ticks
@@ -32,18 +30,40 @@ var Enemy = function () {
 Enemy.prototype.update = function (dt) {
     this.x += this.vx;
     if (this.x == rightBorder) {
-        this.y = initXY(spacingY);
+        this.y = this.initXY(numTilesY, this.height) - 23;
         this.x = this.x - rightBorder - this.width;
-    }
+    };
+    this.overlap();
+};
+
+Enemy.prototype.overlap = function () {
+    for (var i = 0; i < boardY.length; i++) {
+        if (boardY[i] == this.y && boardX[i] == this.x) {
+            console.log('double');
+            return this.active = false;
+        } else if (boardY[i] == this.y && boardX[i] != this.x) {
+            return this.active = true;
+        }
+    };
+};
+
+Enemy.prototype.collision = function () {
+        for (var i = 0; i < boardY.length; i++) {
+
+        };
 };
 
 Enemy.prototype.render = function () {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    if (this.active = true) {
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+        boardX.unshift(this.x);
+        boardX = boardX.splice(0, 4);
+        boardY.unshift(this.y);
+        boardY = boardY.splice(0, 4);
+    };
 };
 
-Enemy.prototype.add = function () {
-    allEnemies.push(this);
-}
+
 
 
 
@@ -65,6 +85,9 @@ Player.prototype.render = function () {
 Player.prototype.handleInput = function (input) {
     this.y = (input == 'up' && this.y != -10) ? this.y - 83 : (input == 'down' && this.y != 405) ? this.y + 83 : this.y;
     this.x = (input == 'left' && this.x != 0) ? this.x - 101 : (input == 'right' && this.x != 404) ? this.x + 101 : this.x;
+    if (this.y == -10) {
+        console.log('winner');
+    };
 };
 
 var enemy1 = new Enemy();
@@ -77,6 +100,16 @@ var enemy4 = new Enemy();
 enemy4.add();
 var enemy5 = new Enemy();
 enemy5.add();
+var enemy6 = new Enemy();
+enemy6.add();
+var enemy7 = new Enemy();
+enemy7.add();
+var enemy8 = new Enemy();
+enemy8.add();
+var enemy9 = new Enemy();
+enemy9.add();
+var enemy10 = new Enemy();
+enemy10.add();
 
 var player = new Player();
 

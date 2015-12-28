@@ -42,7 +42,7 @@ var Engine = (function(global) {
 
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
     function updateEntities(dt) {
@@ -50,6 +50,12 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+    }
+
+        function checkCollisions(){
+        allEnemies.forEach(function(enemy){
+           enemy.collision();
+        });
     }
 
     function render() {
