@@ -69,7 +69,7 @@ var Player = function () {
     this.width = 60;
     this.height = 60;
     this.lives = 5;
-    this.wins = 0;
+    this.points = 0;
 };
 
 Player.prototype.update = function () {
@@ -86,11 +86,11 @@ Player.prototype.update = function () {
         }
     }
     if (this.y == -10) {
-        this.wins++;
+        this.points++;
         this.x = 0;
         this.y = 405;
     }
-    if (this.wins == 5) {
+    if (this.points == 5) {
         endText = 'you won';
         return game = false;
     }
