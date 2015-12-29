@@ -87,7 +87,8 @@ var Engine = (function (global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-cat-girl.png'
+        'images/char-cat-girl.png',
+        'images/Rock.png'
     ]);
     Resources.onReady(init);
     global.ctx = ctx;

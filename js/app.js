@@ -1,7 +1,6 @@
 var allEnemies = [];
-var numTilesX = 5;
-var numTilesY = 3;
-var rightBorder = 505;
+var numCols = 5;
+var numRows = 3;
 var game = true;
 
 var Enemy = function () {
@@ -9,8 +8,8 @@ var Enemy = function () {
     this.vx = 1;
     this.width = 101;
     this.height = 83;
-    this.y = this.initXY(numTilesY, this.height) - 23;
-    this.x = -(this.initXY(numTilesX, this.width)) - 19;
+    this.y = this.position(numRows, this.height) - 23;
+    this.x = -(this.position(numCols, this.width)) - 19;
     this.active = 1;
 };
 
@@ -18,9 +17,9 @@ Enemy.prototype.add = function () {
     allEnemies.push(this);
 };
 
-Enemy.prototype.initXY = function (numTiles, position) {
+Enemy.prototype.position = function (numTiles, measurements) {
     var number = Math.floor(Math.random() * numTiles + 1);
-    var a = number * position;
+    var a = number * measurements;
     return a;
 };
 
@@ -28,15 +27,14 @@ Enemy.prototype.initXY = function (numTiles, position) {
 // multiply any movement by the dt parameter to ensure the game runs at the same speed for all computers.
 Enemy.prototype.update = function (dt) {
     this.x += this.vx;
-    if (this.x == rightBorder) {
-        this.y = this.initXY(numTilesY, this.height) - 23;
-        this.x = this.x - rightBorder - this.width;
+    if (this.x == ctx.canvas.width) {
+        this.y = this.position(numRows, this.height) - 23;
+        this.x = this.x - this.x - this.width;
     };
-    if (this.active == 1) {
-        for (var i = 0; i < allEnemies.length; i++) {
-            if (this.collision(this, allEnemies[i])) {
-                //this.active=0;
-            };
+    for (var i = 0; i < allEnemies.length; i++) {
+        if (this.collision(this, allEnemies[i])) {
+            this.sprite = 'images/Rock.png';
+            this.vx;
         };
     };
 };
@@ -51,6 +49,11 @@ Enemy.prototype.collision = function (a, b) {
 Enemy.prototype.render = function () {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
+
+
+
+
+
 
 
 
@@ -111,6 +114,7 @@ Player.prototype.render = function () {
 Player.prototype.handleInput = function (input) {
     this.y = (input == 'up' && this.y != -10) ? this.y - 83 : (input == 'down' && this.y != 405) ? this.y + 83 : this.y;
     this.x = (input == 'left' && this.x != 0) ? this.x - 101 : (input == 'right' && this.x != 404) ? this.x + 101 : this.x;
+
 };
 
 var enemy1 = new Enemy();
@@ -135,12 +139,6 @@ var enemy10 = new Enemy();
 enemy10.add();
 
 var player = new Player();
-
-
-
-
-
-
 
 
 document.addEventListener('keyup', function (e) {
