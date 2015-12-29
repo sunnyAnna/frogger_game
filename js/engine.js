@@ -14,7 +14,7 @@
  * a little simpler to work with.
  */
 
-var Engine = (function(global) {
+var Engine = (function (global) {
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
@@ -28,10 +28,12 @@ var Engine = (function(global) {
     function main() {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
+        if(game){
         update(dt);
         render();
         lastTime = now;
         win.requestAnimationFrame(main);
+        }else{gameOver(endText);}
     }
 
     function init() {
@@ -42,30 +44,24 @@ var Engine = (function(global) {
 
     function update(dt) {
         updateEntities(dt);
-        checkCollisions();
     }
 
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.update(dt);
         });
         player.update();
     }
 
-        function checkCollisions(){
-        allEnemies.forEach(function(enemy){
-           enemy.collision();
-        });
-    }
 
     function render() {
         var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/water-block.png', // Top row is water
+                'images/stone-block.png', // Row 1 of 3 of stone
+                'images/stone-block.png', // Row 2 of 3 of stone
+                'images/stone-block.png', // Row 3 of 3 of stone
+                'images/grass-block.png', // Row 1 of 2 of grass
+                'images/grass-block.png' // Row 2 of 2 of grass
             ],
             numRows = 6,
             numCols = 5,
@@ -79,7 +75,7 @@ var Engine = (function(global) {
     }
 
     function renderEntities() {
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.render();
         });
         player.render();
