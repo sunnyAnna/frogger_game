@@ -3,14 +3,13 @@ var numCols = 5;
 var numRows = 3;
 var game = true;
 
-var Enemy = function () {
+var Enemy = function (speed) {
     this.sprite = 'images/enemy-bug.png';
-    this.vx = 1;
+    this.vx = speed;
     this.width = 101;
     this.height = 83;
     this.y = this.position(numRows, this.height) - 23;
     this.x = -(this.position(numCols, this.width)) - 19;
-    this.active = 1;
 };
 
 Enemy.prototype.add = function () {
@@ -26,24 +25,20 @@ Enemy.prototype.position = function (numTiles, measurements) {
 // Parameter: dt, a time delta between ticks
 // multiply any movement by the dt parameter to ensure the game runs at the same speed for all computers.
 Enemy.prototype.update = function (dt) {
-    this.x += this.vx;
-    if (this.x == ctx.canvas.width) {
+    this.x = this.x + this.vx * dt;
+    if (this.x >= ctx.canvas.width) {
         this.y = this.position(numRows, this.height) - 23;
-        this.x = this.x - this.x - this.width;
+        if (this.vx >= 160) {
+            this.x = -this.x * (Math.random() * 9 + 1);
+        } else {
+            this.x = this.x - this.x - this.width;
+        }
     };
     for (var i = 0; i < allEnemies.length; i++) {
-        if (this.collision(this, allEnemies[i])) {
-            this.sprite = 'images/Rock.png';
-            this.vx;
+        if (this.x === allEnemies[i].x && this.y === allEnemies[i].y) {
+
         };
     };
-};
-
-Enemy.prototype.collision = function (a, b) {
-    return a.x <= b.x + b.width &&
-        a.x + a.width >= b.x &&
-        a.y <= b.y + b.height &&
-        a.y + a.height >= b.y;
 };
 
 Enemy.prototype.render = function () {
@@ -114,28 +109,27 @@ Player.prototype.render = function () {
 Player.prototype.handleInput = function (input) {
     this.y = (input == 'up' && this.y != -10) ? this.y - 83 : (input == 'down' && this.y != 405) ? this.y + 83 : this.y;
     this.x = (input == 'left' && this.x != 0) ? this.x - 101 : (input == 'right' && this.x != 404) ? this.x + 101 : this.x;
-
 };
 
-var enemy1 = new Enemy();
+var enemy1 = new Enemy(80);
 enemy1.add();
-var enemy2 = new Enemy();
+var enemy2 = new Enemy(80);
 enemy2.add();
-var enemy3 = new Enemy();
+var enemy3 = new Enemy(80);
 enemy3.add();
-var enemy4 = new Enemy();
+var enemy4 = new Enemy(80);
 enemy4.add();
-var enemy5 = new Enemy();
+var enemy5 = new Enemy(80);
 enemy5.add();
-var enemy6 = new Enemy();
+var enemy6 = new Enemy(80);
 enemy6.add();
-var enemy7 = new Enemy();
+var enemy7 = new Enemy(80);
 enemy7.add();
-var enemy8 = new Enemy();
+var enemy8 = new Enemy(80);
 enemy8.add();
-var enemy9 = new Enemy();
+var enemy9 = new Enemy(80);
 enemy9.add();
-var enemy10 = new Enemy();
+var enemy10 = new Enemy(300);
 enemy10.add();
 
 var player = new Player();
