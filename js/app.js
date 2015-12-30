@@ -1,4 +1,5 @@
 var allEnemies = [];
+var playersDisplay = [];
 var numCols = 5;
 var numRows = 3;
 var game = true;
@@ -61,7 +62,7 @@ function gameOver(text) {
 
 
 var Player = function () {
-    this.sprite = 'images/char-cat-girl.png';
+    this.sprite = '';
     this.x = 0;
     this.y = 405;
     this.width = 60;
@@ -134,6 +135,20 @@ enemy10.add();
 
 var player = new Player();
 
+function addClick(images) {
+    document.addEventListener('click', function (e) {
+        var left = ctx.canvas.offsetLeft;
+        var top = ctx.canvas.offsetTop;
+        var x = e.pageX - left;
+        var y = e.pageY - top;
+        if (y >= player.y + player.height && y < ctx.canvas.height) {
+            console.log(x, y);
+            player.sprite = images[Math.floor(x / 101)];
+        }
+        return player.sprite;
+    });
+    return player.sprite;
+}
 
 document.addEventListener('keyup', function (e) {
     var allowedKeys = {

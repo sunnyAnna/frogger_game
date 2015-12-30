@@ -28,12 +28,14 @@ var Engine = (function (global) {
     function main() {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
-        if(game){
-        update(dt);
-        render();
-        lastTime = now;
-        win.requestAnimationFrame(main);
-        }else{gameOver(endText);}
+        if (game) {
+            update(dt);
+            render();
+            lastTime = now;
+            win.requestAnimationFrame(main);
+        } else {
+            gameOver(endText);
+        }
     }
 
     function init() {
@@ -53,6 +55,19 @@ var Engine = (function (global) {
         player.update();
     }
 
+    function choosePlayer() {
+        var rowPlayers = [
+        'images/char-cat-girl.png', // Players displated from the left
+        'images/char-boy.png',
+        'images/char-pink-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-princess-girl.png'
+        ];
+        for (var i = 0; i < rowPlayers.length; i++) {
+            ctx.drawImage(Resources.get(rowPlayers[i]), i * 101, 405);
+        }
+        return addClick(rowPlayers);
+    }
 
     function render() {
         var rowImages = [
@@ -69,7 +84,14 @@ var Engine = (function (global) {
         for (row = 0; row < numRows; row++) {
             for (col = 0; col < numCols; col++) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                if (row == 0 && col == 0) {
+                    ctx.drawImage(Resources.get('images/Key.png'), 0, -10);
+                }
             }
+        }
+        if (player.sprite == 0) {
+            choosePlayer();
+            return player;
         }
         renderEntities();
     }
@@ -88,6 +110,11 @@ var Engine = (function (global) {
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/char-cat-girl.png',
+        'images/char-boy.png',
+                'images/char-pink-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-princess-girl.png',
+        'images/Key.png',
         'images/Rock.png'
     ]);
     Resources.onReady(init);
