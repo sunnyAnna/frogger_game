@@ -1,8 +1,10 @@
 var allEnemies = [];
-var playersDisplay = [];
+var starsArray = [];
+var playerLineup = [];
 var numCols = 5;
 var numRows = 3;
 var game = true;
+var star, enemy, player;
 
 var Enemy = function (speed) {
     this.sprite = 'images/enemy-bug.png';
@@ -13,18 +15,23 @@ var Enemy = function (speed) {
     this.x = -(this.position(numCols, this.width)) - 19;
 };
 
-Enemy.prototype.add = function () {
-    allEnemies.push(this);
-};
-
 Enemy.prototype.position = function (numTiles, measurements) {
     var number = Math.floor(Math.random() * numTiles + 1);
     var a = number * measurements;
     return a;
 };
 
-// Parameter: dt, a time delta between ticks
-// multiply any movement by the dt parameter to ensure the game runs at the same speed for all computers.
+Enemy.prototype.createEnemy = function () {
+    for (var i = 0; i < 11; i++) {
+        if (i == 10) {
+            enemy = new Enemy(300);
+        } else {
+            enemy = new Enemy(80);
+        }
+        allEnemies.push(enemy);
+    }
+};
+
 Enemy.prototype.update = function (dt) {
     this.x = this.x + this.vx * dt;
     if (this.x >= ctx.canvas.width) {
@@ -32,7 +39,7 @@ Enemy.prototype.update = function (dt) {
         if (this.vx >= 160) {
             this.x = -this.x * (Math.random() * 9 + 1);
         } else {
-            this.x = this.x - this.x - this.width;
+            this.x = this.x - this.x - this.width - 19;
         }
     };
     for (var i = 0; i < allEnemies.length; i++) {
@@ -59,41 +66,54 @@ function gameOver(text) {
     ctx.fillText(text, ctx.canvas.width / 2, ctx.canvas.height - 75);
 };
 
+var Tile = function () {
+    this.width = 101;
+    this.height = 83;
+};
+
+var tile = new Tile();
+
+var Board = function (right, left, top, bottom) {
+    this.right = right;
+    this.left = left;
+    this.top = top;
+    this.bottom = bottom;
+};
+
+var board = new Board(404, 0, -10, 405);
+var playersRow = new Board(505, 0, 405, 606);
 
 
-var Player = function () {
-    this.sprite = '';
-    this.x = 0;
-    this.y = 405;
+
+var Player = function (x, sprite) {
+    this.sprite = sprite;
+    this.x = x;
+    this.y = board.bottom;
     this.width = 60;
     this.height = 60;
     this.lives = 5;
     this.points = 0;
+    this.active = false;
 };
 
-Player.prototype.update = function () {
-    for (var i = 0; i < allEnemies.length; i++) {
-        if (this.collision(this, allEnemies[i])) {
-            console.log('bam');
-            this.lives--;
-            this.x = 0;
-            this.y = 405;
-            break;
-        } else if (this.lives == 0) {
-            endText = 'you lost';
-            return game = false;
-        }
+Player.prototype.createPlayers = function (rowPlayers) {
+    for (var i = 0; i < 5; i++) {
+        var x = i * 101;
+        var sprite = rowPlayers[i];
+        player = new Player(x, sprite);
+        playerLineup.push(player);
     }
-    if (this.y == -10) {
-        this.points++;
-        this.x = 0;
-        this.y = 405;
-    }
-    if (this.points == 5) {
-        endText = 'you won';
-        return game = false;
-    }
+};
 
+Player.prototype.handleInput = function (input) {
+    var currentX = this.x;
+    var currentY = this.y;
+    this.y = (input == 'up') ? this.y - tile.height : (input == 'down') ? this.y + tile.height : this.y;
+    this.x = (input == 'left') ? this.x - tile.width : (input == 'right') ? this.x + tile.width : this.x;
+    if (this.onCanvas(this, board) == false) {
+        this.y = currentY;
+        this.x = currentX;
+    }
 };
 
 Player.prototype.collision = function (a, b) {
@@ -103,52 +123,79 @@ Player.prototype.collision = function (a, b) {
         a.y + a.height >= b.y;
 };
 
+Player.prototype.onCanvas = function (a, b) {
+    return a.x >= b.left &&
+        a.x <= b.right &&
+        a.y >= b.top &&
+        a.y <= b.bottom;
+};
+
+Player.prototype.createStar = function (x, y) {
+    star = new Star(x, y);
+    starsArray.push(star);
+};
+
+Player.prototype.update = function () {
+    for (var i = 0; i < allEnemies.length; i++) {
+        if (this.collision(this, allEnemies[i])) {
+            this.lives--;
+            this.x = board.left;
+            this.y = board.bottom;
+            break;
+        }
+    }
+    if (this.y == board.top) {
+        this.points++;
+        this.createStar(this.x, this.y);
+        this.x = board.left;
+        this.y = board.bottom;
+    }
+    if (this.lives == 0 || this.points == 5) {
+        endText = (this.lives == 0) ? 'you lost' : 'you won';
+        return game = false;
+    }
+};
+
 Player.prototype.render = function () {
     Enemy.prototype.render.call(player);
 };
 
-Player.prototype.handleInput = function (input) {
-    this.y = (input == 'up' && this.y != -10) ? this.y - 83 : (input == 'down' && this.y != 405) ? this.y + 83 : this.y;
-    this.x = (input == 'left' && this.x != 0) ? this.x - 101 : (input == 'right' && this.x != 404) ? this.x + 101 : this.x;
+
+
+
+
+
+var Star = function (x, y) {
+    this.sprite = 'images/Star.png';
+    this.x = x;
+    this.y = y;
 };
 
-var enemy1 = new Enemy(80);
-enemy1.add();
-var enemy2 = new Enemy(80);
-enemy2.add();
-var enemy3 = new Enemy(80);
-enemy3.add();
-var enemy4 = new Enemy(80);
-enemy4.add();
-var enemy5 = new Enemy(80);
-enemy5.add();
-var enemy6 = new Enemy(80);
-enemy6.add();
-var enemy7 = new Enemy(80);
-enemy7.add();
-var enemy8 = new Enemy(80);
-enemy8.add();
-var enemy9 = new Enemy(80);
-enemy9.add();
-var enemy10 = new Enemy(300);
-enemy10.add();
+Star.prototype.render = function () {
+    Enemy.prototype.render.call(star);
+};
 
-var player = new Player();
-
-function addClick(images) {
-    document.addEventListener('click', function (e) {
-        var left = ctx.canvas.offsetLeft;
-        var top = ctx.canvas.offsetTop;
-        var x = e.pageX - left;
-        var y = e.pageY - top;
-        if (y >= player.y + player.height && y < ctx.canvas.height) {
-            console.log(x, y);
-            player.sprite = images[Math.floor(x / 101)];
+var choosePlayer = function (e) {
+    var left = ctx.canvas.offsetLeft;
+    var top = ctx.canvas.offsetTop;
+    var e = {
+        x: e.pageX - left,
+        y: e.pageY - top
+    };
+    for (var i = 0, j = playerLineup.length; i < j; i++) {
+        if (player.onCanvas(e, playersRow)) {
+            if (i < 4 && e.x >= playerLineup[i].x && e.x < playerLineup[i + 1].x ||
+                i == 4 && e.x >= playerLineup[i].x
+            ) {
+                player = playerLineup[i];
+                player.active = true;
+                break;
+            }
         }
-        return player.sprite;
-    });
-    return player.sprite;
-}
+    }
+    document.removeEventListener('click', choosePlayer);
+    return player;
+};
 
 document.addEventListener('keyup', function (e) {
     var allowedKeys = {

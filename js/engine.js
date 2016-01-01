@@ -20,7 +20,6 @@ var Engine = (function (global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
-
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
@@ -52,10 +51,12 @@ var Engine = (function (global) {
         allEnemies.forEach(function (enemy) {
             enemy.update(dt);
         });
-        player.update();
+        if (player) {
+            player.update();
+        }
     }
 
-    function choosePlayer() {
+    function drawPlayers() {
         var rowPlayers = [
         'images/char-cat-girl.png', // Players displated from the left
         'images/char-boy.png',
@@ -63,10 +64,8 @@ var Engine = (function (global) {
         'images/char-horn-girl.png',
         'images/char-princess-girl.png'
         ];
-        for (var i = 0; i < rowPlayers.length; i++) {
-            ctx.drawImage(Resources.get(rowPlayers[i]), i * 101, 405);
-        }
-        return addClick(rowPlayers);
+        Player.prototype.createPlayers(rowPlayers);
+        document.addEventListener('click', choosePlayer);
     }
 
     function render() {
@@ -84,21 +83,29 @@ var Engine = (function (global) {
         for (row = 0; row < numRows; row++) {
             for (col = 0; col < numCols; col++) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
-                if (row == 0 && col == 0) {
-                    ctx.drawImage(Resources.get('images/Key.png'), 0, -10);
-                }
             }
         }
-        if (player.sprite == 0) {
-            choosePlayer();
-            return player;
+        ctx.drawImage(Resources.get('images/Key.png'), 0, -10);
+        if (playerLineup == 0 && allEnemies == 0) {
+            drawPlayers();
+            Enemy.prototype.createEnemy();
         }
-        renderEntities();
+        if (player.active == false) {
+            playerLineup.forEach(function (player) {
+                ctx.drawImage(Resources.get(player.sprite), player.x, player.y);
+            });
+        }
+        if (player.active == true) {
+            renderEntities();
+        }
     }
 
     function renderEntities() {
         allEnemies.forEach(function (enemy) {
             enemy.render();
+        });
+        starsArray.forEach(function (star) {
+            ctx.drawImage(Resources.get(star.sprite), star.x, star.y);
         });
         player.render();
     }
@@ -111,10 +118,11 @@ var Engine = (function (global) {
         'images/enemy-bug.png',
         'images/char-cat-girl.png',
         'images/char-boy.png',
-                'images/char-pink-girl.png',
+        'images/char-pink-girl.png',
         'images/char-horn-girl.png',
         'images/char-princess-girl.png',
         'images/Key.png',
+        'images/Star.png',
         'images/Rock.png'
     ]);
     Resources.onReady(init);
