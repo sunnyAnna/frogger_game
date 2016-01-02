@@ -107,6 +107,9 @@ var Engine = (function (global) {
         starsArray.forEach(function (star) {
             ctx.drawImage(Resources.get(star.sprite), star.x, star.y);
         });
+        rocksArray.forEach(function (rock) {
+            ctx.drawImage(Resources.get(rock.sprite), rock.x, rock.y);
+        });
         player.render();
     }
 
