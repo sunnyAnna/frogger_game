@@ -27,12 +27,11 @@ var Engine = (function (global) {
     function main() {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
-        if (game) {
-            update(dt);
-            render();
-            lastTime = now;
-            win.requestAnimationFrame(main);
-        } else {
+        updateEntities(dt);
+        render();
+        lastTime = now;
+        win.requestAnimationFrame(main);
+        if (game == false) {
             gameOver(endText);
         }
     }
@@ -40,20 +39,14 @@ var Engine = (function (global) {
     function init() {
         reset();
         lastTime = Date.now();
-        main();
-    }
-
-    function update(dt) {
-        updateEntities(dt);
+        drawPlayers();
     }
 
     function updateEntities(dt) {
         allEnemies.forEach(function (enemy) {
             enemy.update(dt);
         });
-        if (player) {
-            player.update();
-        }
+        player.update();
     }
 
     function drawPlayers() {
@@ -64,9 +57,37 @@ var Engine = (function (global) {
         'images/char-horn-girl.png',
         'images/char-princess-girl.png'
         ];
-        Player.prototype.createPlayers(rowPlayers);
+        createPlayers(rowPlayers);
+        playerLineup.forEach(function (player) {
+            player.render(player);
+        });
         document.addEventListener('click', choosePlayer);
     }
+
+    function choosePlayer(e) {
+        var left = ctx.canvas.offsetLeft;
+        var top = ctx.canvas.offsetTop;
+        var e = {
+            x: e.pageX - left,
+            y: e.pageY - top
+        };
+        for (var i = 0, j = playerLineup.length; i < j; i++) {
+            if (player.onCanvas(e, playersRow)) {
+                if (i < 4 && e.x >= playerLineup[i].x && e.x < playerLineup[i + 1].x ||
+                    i == 4 && e.x >= playerLineup[i].x
+                ) {
+                    player = playerLineup[i];
+                    player = new Player(player.x, player.sprite);
+                    player.active = true;
+                    playerLineup = [];
+                    break;
+                }
+            }
+        }
+        document.removeEventListener('click', choosePlayer);
+        createEnemies();
+        main();
+    };
 
     function render() {
         var rowImages = [
@@ -85,19 +106,7 @@ var Engine = (function (global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-        ctx.drawImage(Resources.get('images/Key.png'), 0, -10);
-        if (playerLineup == 0 && allEnemies == 0) {
-            drawPlayers();
-            Enemy.prototype.createEnemy();
-        }
-        if (player.active == false) {
-            playerLineup.forEach(function (player) {
-                ctx.drawImage(Resources.get(player.sprite), player.x, player.y);
-            });
-        }
-        if (player.active == true) {
-            renderEntities();
-        }
+        renderEntities();
     }
 
     function renderEntities() {
@@ -105,12 +114,13 @@ var Engine = (function (global) {
             enemy.render();
         });
         starsArray.forEach(function (star) {
-            ctx.drawImage(Resources.get(star.sprite), star.x, star.y);
+            star.render(star);
         });
         rocksArray.forEach(function (rock) {
-            ctx.drawImage(Resources.get(rock.sprite), rock.x, rock.y);
+            rock.render(rock);
         });
-        player.render();
+        player.render(player);
+        key.render(key);
     }
 
     function reset() {}

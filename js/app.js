@@ -2,10 +2,11 @@ var allEnemies = [];
 var starsArray = [];
 var playerLineup = [];
 var rocksArray = [];
+var keys = [];
 var numCols = 5;
 var numRows = 3;
 var game = true;
-var star, enemy, player;
+var star, enemy, player, rock;
 
 var Enemy = function (speed) {
     this.sprite = 'images/enemy-bug.png';
@@ -22,11 +23,11 @@ Enemy.prototype.position = function (numTiles, measurements) {
     return a;
 };
 
-Enemy.prototype.createEnemy = function () {
+function createEnemies() {
     for (var i = 0; i <= 10; i++) {
         if (i == 10) {
             enemy = new Enemy(300);
-            this.name = 'speedy';
+            enemy.name = 'speedy';
         } else {
             enemy = new Enemy(80);
         }
@@ -46,9 +47,6 @@ Enemy.prototype.update = function (dt) {
     }
 };
 
-Enemy.prototype.render = function () {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
 
 
 
@@ -56,12 +54,6 @@ Enemy.prototype.render = function () {
 
 
 
-
-
-function gameOver(text) {
-    ctx.font = '50px serif';
-    ctx.fillText(text, ctx.canvas.width / 2, ctx.canvas.height - 75);
-};
 
 var Tile = function () {
     this.width = 101;
@@ -75,11 +67,13 @@ var Board = function (right, left, top, bottom) {
     this.bottom = bottom;
 };
 
-var tile = new Tile();
-var board = new Board(404, 0, -10, 405);
-var playersRow = new Board(505, 0, 405, 606);
-
-
+var Obstacle = function (x, y, sprite) {
+    this.sprite = sprite;
+    this.x = x;
+    this.y = y;
+    this.width = 60;
+    this.height = 60;
+};
 
 var Player = function (x, sprite) {
     this.sprite = sprite;
@@ -88,17 +82,30 @@ var Player = function (x, sprite) {
     this.width = 60;
     this.height = 60;
     this.lives = 5;
-    this.points = 0;
+    this.points = 5;
     this.active = false;
+    this.resetX = board.left;
+    this.resetY = board.bottom;
 };
 
-Player.prototype.createPlayers = function (rowPlayers) {
+var tile = new Tile();
+var board = new Board(404, 0, -10, 405);
+var key = new Obstacle(board.left, board.top, 'images/Key.png');
+keys.push(key);
+var playersRow = new Board(505, 0, 405, 606);
+
+function createPlayers(rowPlayers) {
     for (var i = 0, j = rowPlayers.length; i < j; i++) {
         var x = i * 101;
         var sprite = rowPlayers[i];
         player = new Player(x, sprite);
         playerLineup.push(player);
     }
+};
+
+Player.prototype.resetPosition = function () {
+    this.x = this.resetX;
+    this.y = this.resetY;
 };
 
 Player.prototype.handleInput = function (input) {
@@ -112,29 +119,35 @@ Player.prototype.handleInput = function (input) {
     }
     this.obstacleCollision(rocksArray, currentX, currentY);
     this.obstacleCollision(starsArray, currentX, currentY);
+    if (this.points > 1) {
+        this.obstacleCollision(keys, currentX, currentY);
+    }
     if (this.y == board.top) {
-        this.points++;
-        this.createStar(this.x, this.y);
-        this.x = board.left;
-        this.y = board.bottom;
+        this.points--;
+        this.createObstacle(star, starsArray, this.x, this.y, 'images/Star.png');
+        this.resetPosition();
     }
 };
 
-Player.prototype.enemyCollision = function (x, y) {
+Player.prototype.enemyCollision = function () {
     for (var i = 0, j = allEnemies.length; i < j; i++) {
         if (this.collision(this, allEnemies[i])) {
             this.lives--;
-            this.createRock(this.x, this.y);
-            this.x = board.left;
-            this.y = board.bottom;
+            this.createObstacle(rock, rocksArray, this.x, this.y - 10, 'images/Rock.png');
+            this.resetPosition();
             break;
         }
     }
 };
 
-Player.prototype.obstacleCollision = function (obj, x, y) {
-    for (var i = 0, j = obj.length; i < j; i++) {
-        if (this.collision(this, obj[i])) {
+Player.prototype.createObstacle = function (obstacle, arr, x, y, img) {
+    obstacle = new Obstacle(x, y, img);
+    arr.push(obstacle);
+};
+
+Player.prototype.obstacleCollision = function (arr, x, y) {
+    for (var i = 0, j = arr.length; i < j; i++) {
+        if (this.collision(this, arr[i])) {
             this.x = x;
             this.y = y;
             break;
@@ -158,14 +171,24 @@ Player.prototype.onCanvas = function (a, b) {
 
 Player.prototype.update = function () {
     this.enemyCollision();
-    if (this.lives == 0 || this.points == 5) {
+    if (this.lives == 0 || this.points == 0) {
         endText = (this.lives == 0) ? 'you lost' : 'you won';
         return game = false;
     }
 };
 
-Player.prototype.render = function () {
-    Enemy.prototype.render.call(player);
+Enemy.prototype.render = function () {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+Obstacle.prototype.render = function (obj) {
+    this.obj = obj;
+    Enemy.prototype.render.call(obj);
+};
+
+Player.prototype.render = function (obj) {
+    this.obj = obj;
+    Enemy.prototype.render.call(obj);
 };
 
 
@@ -173,61 +196,10 @@ Player.prototype.render = function () {
 
 
 
-var Star = function (x, y) {
-    this.sprite = 'images/Star.png';
-    this.x = x;
-    this.y = y;
-    this.width = 60;
-    this.height = 60;
-};
 
-Player.prototype.createStar = function (x, y) {
-    star = new Star(x, y);
-    starsArray.push(star);
-};
 
-Star.prototype.render = function () {
-    Enemy.prototype.render.call(star);
-};
 
-var Rock = function (x, y) {
-    this.sprite = 'images/Rock.png';
-    this.x = x;
-    this.y = y;
-    this.width = 60;
-    this.height = 60;
-};
 
-Player.prototype.createRock = function (x, y) {
-    rock = new Rock(x, y);
-    rocksArray.push(rock);
-};
-
-Rock.prototype.render = function () {
-    Enemy.prototype.render.call(rock);
-};
-
-var choosePlayer = function (e) {
-    var left = ctx.canvas.offsetLeft;
-    var top = ctx.canvas.offsetTop;
-    var e = {
-        x: e.pageX - left,
-        y: e.pageY - top
-    };
-    for (var i = 0, j = playerLineup.length; i < j; i++) {
-        if (player.onCanvas(e, playersRow)) {
-            if (i < 4 && e.x >= playerLineup[i].x && e.x < playerLineup[i + 1].x ||
-                i == 4 && e.x >= playerLineup[i].x
-            ) {
-                player = playerLineup[i];
-                player.active = true;
-                break;
-            }
-        }
-    }
-    document.removeEventListener('click', choosePlayer);
-    return player;
-};
 
 document.addEventListener('keyup', function (e) {
     var allowedKeys = {
@@ -240,3 +212,8 @@ document.addEventListener('keyup', function (e) {
         player.handleInput(allowedKeys[e.keyCode]);
     };
 });
+
+function gameOver(text) {
+    ctx.font = '50px serif';
+    ctx.fillText(text, ctx.canvas.width / 2, ctx.canvas.height - 75);
+};
