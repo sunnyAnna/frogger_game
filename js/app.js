@@ -3,10 +3,12 @@ var starsArray = [];
 var playerLineup = [];
 var rocksArray = [];
 var keys = [];
+var icons = [];
 var numCols = 5;
 var numRows = 3;
 var game = true;
-var star, enemy, player, rock;
+var play = true;
+var star, enemy, icon, player, rock;
 
 var Enemy = function (speed) {
     this.sprite = 'images/enemy-bug.png';
@@ -88,6 +90,30 @@ var Player = function (x, sprite) {
     this.resetY = board.bottom;
 };
 
+var Icon = function (x, sprite, name) {
+    this.width = 30;
+    this.height = 30;
+    this.x = x;
+    this.y = playersRow.bottom - 30;
+    this.sprite = sprite;
+    this.name = name;
+}
+
+function createIcons() {
+    for (var i = 0; i < 2; i++) {
+        if (i === 1) {
+            icon = new Icon(playersRow.right - 83, '\ue808', 'pause');
+        } else {
+            icon = new Icon(playersRow.right - 43, '\ue801', 'restart');
+        }
+        icons.push(icon);
+    }
+}
+
+Icon.prototype.activate = function () {
+
+}
+
 var tile = new Tile();
 var board = new Board(404, 0, -10, 405);
 var key = new Obstacle(board.left, board.top, 'images/Key.png');
@@ -162,6 +188,13 @@ Player.prototype.collision = function (a, b) {
         a.y + a.height >= b.y;
 };
 
+Icon.prototype.collision = function (a, b) {
+    return a.x <= b.x + b.width &&
+        a.x >= b.x &&
+        a.y <= b.y + b.height &&
+        a.y >= b.y;
+}
+
 Player.prototype.onCanvas = function (a, b) {
     return a.x >= b.left &&
         a.x <= b.right &&
@@ -181,6 +214,11 @@ Enemy.prototype.render = function () {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+Icon.prototype.render = function () {
+    ctx.font = '30px fontello';
+    ctx.fillText(this.sprite, this.x, this.y);
+}
+
 Obstacle.prototype.render = function (obj) {
     this.obj = obj;
     Enemy.prototype.render.call(obj);
@@ -190,11 +228,6 @@ Player.prototype.render = function (obj) {
     this.obj = obj;
     Enemy.prototype.render.call(obj);
 };
-
-
-
-
-
 
 
 
@@ -213,7 +246,40 @@ document.addEventListener('keyup', function (e) {
     };
 });
 
+document.addEventListener('click', function (e) {
+    var left = ctx.canvas.offsetLeft;
+    var top = ctx.canvas.offsetTop - 30;
+    var e = {
+        x: e.pageX - left,
+        y: e.pageY - top
+    };
+    console.log(e.x, e.y);
+    for (var i = 0, j = icons.length; i < j; i++) {
+        if (icon.collision(e, icons[i])) {
+            if (icons[i].name === 'pause') {
+                icons[i].name = 'play';
+                icons[i].sprite = '\ue807';
+                return play = false;
+            };
+            if (icons[i].name === 'play') {
+                icons[i].name = 'pause';
+                icons[i].sprite = '\ue808';
+                play = true;
+                return
+            };
+            if (icons[i].name == 'restart') {
+                endText = '';
+                return game = false;
+            };
+        };
+    };
+});
+
 function gameOver(text) {
-    ctx.font = '50px serif';
-    ctx.fillText(text, ctx.canvas.width / 2, ctx.canvas.height - 75);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.font = '40px sans-serif';
+    ctx.fillStyle = "black";
+    ctx.textAlign = 'center';
+    ctx.fillText(text.toUpperCase(), ctx.canvas.width / 2, playersRow.bottom - 70);
 };

@@ -19,25 +19,31 @@ var Engine = (function (global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime, m = 1,
+        s = 59,
+        timer;
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
     function main() {
-        var now = Date.now(),
-            dt = (now - lastTime) / 1000.0;
-        updateEntities(dt);
-        render();
-        lastTime = now;
-        win.requestAnimationFrame(main);
-        if (game == false) {
+        if (game && play) {
+            var now = Date.now(),
+                dt = (now - lastTime) / 1000.0;
+            updateEntities(dt);
+            render();
+            lastTime = now;
+            win.requestAnimationFrame(main);
+        } else if (game) {
+            win.requestAnimationFrame(render);
+        } else {
             gameOver(endText);
+            win.requestAnimationFrame(reset);
+            init();
         }
     }
 
     function init() {
-        reset();
         lastTime = Date.now();
         drawPlayers();
     }
@@ -87,7 +93,28 @@ var Engine = (function (global) {
         document.removeEventListener('click', choosePlayer);
         createEnemies();
         main();
+        createIcons();
+        countdown();
     };
+
+    function countdown() {
+        setInterval(showTime, 1000);
+    }
+
+    function showTime() {
+        if (m === 0 && s < 0) {
+            clearInterval(showTime);
+            endText = 'time out : you lost';
+            game = false;
+            return;
+        } else if (s < 0) {
+            m--;
+            s = 59;
+        }
+        timer = (s < 10) ? '0' + m + ':0' + s : '0' + m + ':' + s;
+        ctx.fillStyle = 'white';
+        s--;
+    }
 
     function render() {
         var rowImages = [
@@ -106,6 +133,11 @@ var Engine = (function (global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
+        ctx.font = '30px sans-serif';
+        ctx.fillText(timer, playersRow.left + 13, playersRow.bottom - 30);
+        icons.forEach(function (icon) {
+            icon.render();
+        })
         renderEntities();
     }
 
@@ -123,7 +155,14 @@ var Engine = (function (global) {
         key.render(key);
     }
 
-    function reset() {}
+    function reset() {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        main();
+    }
+
+
+
     Resources.load([
         'images/stone-block.png',
         'images/water-block.png',
