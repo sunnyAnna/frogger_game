@@ -14,38 +14,43 @@
  * a little simpler to work with.
  */
 
-var Engine = (function (global) {
+var Engine = (function engine(global) {
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime, m = 1,
-        s = 59,
-        timer;
+        lastTime, s, m, timer, clock;
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
     function main() {
-        if (game && play) {
+        if (game) {
             var now = Date.now(),
                 dt = (now - lastTime) / 1000.0;
-            updateEntities(dt);
-            render();
             lastTime = now;
-            win.requestAnimationFrame(main);
-        } else if (game) {
-            win.requestAnimationFrame(render);
+            if (play) {
+                updateEntities(dt);
+                render();
+                win.requestAnimationFrame(main);
+            } else {
+                render();
+                win.requestAnimationFrame(main);
+            }
         } else {
-            gameOver(endText);
-            win.requestAnimationFrame(reset);
-            init();
+            if (play) {
+                reset();
+            } else {
+                gameOver(endText);
+                setTimeout(function(){reset();},3000);
+            }
         }
     }
 
     function init() {
         lastTime = Date.now();
         drawPlayers();
+        countdown();
     }
 
     function updateEntities(dt) {
@@ -71,49 +76,58 @@ var Engine = (function (global) {
     }
 
     function choosePlayer(e) {
-        var left = ctx.canvas.offsetLeft;
-        var top = ctx.canvas.offsetTop;
-        var e = {
-            x: e.pageX - left,
-            y: e.pageY - top
-        };
-        for (var i = 0, j = playerLineup.length; i < j; i++) {
-            if (player.onCanvas(e, playersRow)) {
+        e = clickPosition(e);
+        for (var i = 0; i < 5; i++) {
+            if (player.collision(e, playersRow)) {
                 if (i < 4 && e.x >= playerLineup[i].x && e.x < playerLineup[i + 1].x ||
-                    i == 4 && e.x >= playerLineup[i].x
-                ) {
+                    i == 4 && e.x >= playerLineup[i].x) {
                     player = playerLineup[i];
                     player = new Player(player.x, player.sprite);
                     player.active = true;
                     playerLineup = [];
+                    document.removeEventListener('click', choosePlayer);
+                    cleanUp();
+                    createElements();
                     break;
                 }
             }
         }
-        document.removeEventListener('click', choosePlayer);
-        createEnemies();
-        main();
-        createIcons();
-        countdown();
     };
 
+    function cleanUp() {
+        starsArray = [];
+        rocksArray = [];
+        allEnemies = [];
+        icons = [];
+    }
+
+    function createElements() {
+        createEnemies();
+        createIcons();
+        main();
+    }
+
     function countdown() {
-        setInterval(showTime, 1000);
+        m = 1;
+        s = 59;
+        clock = setInterval(showTime, 1000);
     }
 
     function showTime() {
-        if (m === 0 && s < 0) {
-            clearInterval(showTime);
-            endText = 'time out : you lost';
-            game = false;
-            return;
-        } else if (s < 0) {
-            m--;
-            s = 59;
+        if (play) {
+            if (m === 0 && s < 0) {
+                clearInterval(clock);
+                endText = 'time out : you lost';
+                play = false;
+                game = false;
+                return;
+            } else if (s < 0) {
+                m--;
+                s = 59;
+            }
+            timer = (s < 10) ? '0' + m + ':0' + s : '0' + m + ':' + s;
+            s--;
         }
-        timer = (s < 10) ? '0' + m + ':0' + s : '0' + m + ':' + s;
-        ctx.fillStyle = 'white';
-        s--;
     }
 
     function render() {
@@ -134,10 +148,13 @@ var Engine = (function (global) {
             }
         }
         ctx.font = '30px sans-serif';
-        ctx.fillText(timer, playersRow.left + 13, playersRow.bottom - 30);
+        ctx.fillStyle = 'white';
+        if (timer) {
+            ctx.fillText(timer, playersRow.x + 13, ctx.canvas.height - 30);
+        }
         icons.forEach(function (icon) {
             icon.render();
-        })
+        });
         renderEntities();
     }
 
@@ -146,22 +163,23 @@ var Engine = (function (global) {
             enemy.render();
         });
         starsArray.forEach(function (star) {
-            star.render(star);
+            star.render();
         });
         rocksArray.forEach(function (rock) {
-            rock.render(rock);
+            rock.render();
         });
-        player.render(player);
-        key.render(key);
+        player.render();
+        key.render();
     }
 
     function reset() {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        main();
+        clearInterval(clock);
+        ctx.canvas.width = ctx.canvas.width;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        game = true;
+        play = true;
+        init();
     }
-
-
 
     Resources.load([
         'images/stone-block.png',
