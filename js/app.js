@@ -31,7 +31,7 @@ function createEnemies() {
 };
 
 Enemy.prototype.position = function (numTiles, measurements) {
-    var number = Math.floor(Math.random() * numTiles + 1);
+    var number = ~~(Math.random() * numTiles + 1);
     var a = number * measurements;
     return a;
 };
@@ -88,7 +88,6 @@ var Player = function (x, sprite) {
     this.height = 60;
     this.lives = 5;
     this.points = 5;
-    this.active = false;
     this.resetX = playersRow.x;
     this.resetY = playersRow.y;
 };
@@ -147,8 +146,7 @@ Player.prototype.handleInput = function (input) {
 };
 
 Player.prototype.restrictMoves = function (x, y) {
-    if (this.collision(this, board) === false ||
-        this.points > 1 && this.collision(key, this)) {
+    if (!this.collision(this, board) || this.points > 1 && this.collision(key, this)) {
         this.y = y;
         this.x = x;
     }
@@ -178,8 +176,8 @@ Player.prototype.update = function () {
         this.createStars();
     }
     this.enemyCollision();
-    if (this.lives == 0 || this.points == 0) {
-        endText = (this.lives == 0) ? 'you lost' : 'you won';
+    if (!this.lives || !this.points) {
+        endText = (!this.lives) ? 'you lost' : 'you won';
         play = false;
         return game = false;
     }

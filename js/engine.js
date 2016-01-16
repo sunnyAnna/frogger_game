@@ -24,6 +24,9 @@ var Engine = (function engine(global) {
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
+    /**
+     * @description Updates the animation frame
+     */
     function main() {
         if (game) {
             var now = Date.now(),
@@ -42,17 +45,26 @@ var Engine = (function engine(global) {
                 reset();
             } else {
                 gameOver(endText);
-                setTimeout(function(){reset();},3000);
+                setTimeout(function () {
+                    reset();
+                }, 3000);
             }
         }
     }
 
+    /**
+     * @description Starts the game ???
+     */
     function init() {
         lastTime = Date.now();
         drawPlayers();
         countdown();
     }
 
+    /**
+     * @description Updates the player and enemies
+     * @param {number} dt - Time passed from last animation frame
+     */
     function updateEntities(dt) {
         allEnemies.forEach(function (enemy) {
             enemy.update(dt);
@@ -60,6 +72,9 @@ var Engine = (function engine(global) {
         player.update();
     }
 
+    /**
+     * @description Creates an array of players
+     */
     function drawPlayers() {
         var rowPlayers = [
         'images/char-cat-girl.png', // Players displated from the left
@@ -75,6 +90,10 @@ var Engine = (function engine(global) {
         document.addEventListener('click', choosePlayer);
     }
 
+    /**
+     * @description
+     * @param {object} e - Event object
+     */
     function choosePlayer(e) {
         e = clickPosition(e);
         for (var i = 0; i < 5; i++) {
@@ -83,36 +102,47 @@ var Engine = (function engine(global) {
                     i == 4 && e.x >= playerLineup[i].x) {
                     player = playerLineup[i];
                     player = new Player(player.x, player.sprite);
-                    player.active = true;
-                    playerLineup = [];
-                    document.removeEventListener('click', choosePlayer);
-                    cleanUp();
-                    createElements();
-                    break;
                 }
+                document.removeEventListener('click', choosePlayer);
+                cleanUp();
+                createElements();
+                break;
             }
         }
     };
 
+    /**
+     * @description Empties arrays
+     */
     function cleanUp() {
+        playerLineup = [];
         starsArray = [];
         rocksArray = [];
         allEnemies = [];
         icons = [];
     }
 
+    /**
+     * @description
+     */
     function createElements() {
         createEnemies();
         createIcons();
         main();
     }
 
+    /**
+     * @description Starts the timer
+     */
     function countdown() {
         m = 1;
         s = 59;
         clock = setInterval(showTime, 1000);
     }
 
+    /**
+     * @description Creates and updates the timer
+     */
     function showTime() {
         if (play) {
             if (m === 0 && s < 0) {
@@ -130,6 +160,9 @@ var Engine = (function engine(global) {
         }
     }
 
+    /**
+     * @description Draws an animation frame
+     */
     function render() {
         var rowImages = [
                 'images/water-block.png', // Top row is water
@@ -158,6 +191,9 @@ var Engine = (function engine(global) {
         renderEntities();
     }
 
+    /**
+     * @description Draws the player, enemies and obstacles
+     */
     function renderEntities() {
         allEnemies.forEach(function (enemy) {
             enemy.render();
@@ -172,6 +208,9 @@ var Engine = (function engine(global) {
         key.render();
     }
 
+    /**
+     * @description Clears the canvas and draws the initial animation frame
+     */
     function reset() {
         clearInterval(clock);
         ctx.canvas.width = ctx.canvas.width;
@@ -181,6 +220,9 @@ var Engine = (function engine(global) {
         init();
     }
 
+    /**
+     * @description Loads images
+     */
     Resources.load([
         'images/stone-block.png',
         'images/water-block.png',
@@ -195,7 +237,12 @@ var Engine = (function engine(global) {
         'images/Star.png',
         'images/Rock.png'
     ]);
+
+    /**
+     * @description
+     */
     Resources.onReady(init);
+
     global.ctx = ctx;
 
 })(this);
