@@ -1,6 +1,3 @@
-/**
- * @description Sets global variables
- */
 var allEnemies = [];
 var starsArray = [];
 var playerLineup = [];
@@ -108,20 +105,22 @@ var Obstacle = function(x, y, sprite) {
 };
 
 /**
- * @description Creates objects for Board class
- * @param {number} Object y coordinate
- * @param {number} Object width
- * @param {number} Object height
+ * @description Creates tile object
  */
 var tile = new Board(0, 101, 83);
+
+/**
+ * @description Creates board object
+ */
 var board = new Board(-10, 500, 480);
+
+/**
+ * @description Creates playersRow object
+ */
 var playersRow = new Board(405, 505, 130);
 
 /**
- * @description Creates objects for Obstacle class
- * @param {number} x - Obstacle x coordinate
- * @param {number} y - Obstacle y coordinate
- * @param {string} sprite - Obstacle image
+ * @description Creates key object
  */
 var key = new Obstacle(board.x, board.y, 'images/Key.png');
 
