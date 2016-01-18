@@ -18,9 +18,11 @@ You win the game if the player reaches the key.
 ```
 The key is accessible only after the player fills the whole body of water with stars.
 
-Each time the player reaches the water a star is left behind and the player is moved to the bottom of the board.   Player is then prevented from access to the space occupied by the star.
+Each time the player reaches the water a star is left behind and the player is moved to the bottom of the board.  
+Player is then prevented from access to the space occupied by the star.
 
-Each time the player is hit by a bug a rock is created at the collision space and the player is moved to the bottom of the board.   The player is unable to cross the rock.
+Each time the player is hit by a bug a rock is created at the collision space and the player is moved to the bottom of the board.  
+The player is unable to cross the rock.
 
 You lose the game if the player is hit by a bug 5 times or you run out of time.
 
