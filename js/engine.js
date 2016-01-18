@@ -14,6 +14,9 @@
  * a little simpler to work with.
  */
 
+/**
+ * Game engine
+ */
 var Engine = (function engine(global) {
     var doc = global.document,
         win = global.window,
@@ -25,7 +28,7 @@ var Engine = (function engine(global) {
     doc.body.appendChild(canvas);
 
     /**
-     * @description Updates the animation frame
+     * Updates the animation frame
      */
     function main() {
         if (game) {
@@ -53,16 +56,18 @@ var Engine = (function engine(global) {
     }
 
     /**
-     * @description Starts the game ???
+     * Creates the player, enemies and icons
      */
     function init() {
         lastTime = Date.now();
         drawPlayers();
-        countdown();
+        createEnemies();
+        createIcons();
     }
 
+
     /**
-     * @description Updates the player and enemies
+     * Updates the player and enemies
      * @param {number} dt - Time passed from last animation frame
      */
     function updateEntities(dt) {
@@ -73,7 +78,7 @@ var Engine = (function engine(global) {
     }
 
     /**
-     * @description Creates an array of players
+     * Creates an array of players
      */
     function drawPlayers() {
         var rowPlayers = [
@@ -91,48 +96,28 @@ var Engine = (function engine(global) {
     }
 
     /**
-     * @description
+     * Checks which player was clicked on
      * @param {object} e - Event object
+     * @returns {function} main() - Global function
      */
     function choosePlayer(e) {
         e = clickPosition(e);
-        for (var i = 0; i < 5; i++) {
-            if (player.collision(e, playersRow)) {
-                if (i < 4 && e.x >= playerLineup[i].x && e.x < playerLineup[i + 1].x ||
-                    i == 4 && e.x >= playerLineup[i].x) {
-                    player = playerLineup[i];
-                    player = new Player(player.x, player.sprite);
-                }
+        e.y -= player.height;
+        e.x -= 20;
+        for (var i = 0; i < playerLineup.length; i++) {
+            if (player.collision(e, playerLineup[i])) {
                 document.removeEventListener('click', choosePlayer);
-                cleanUp();
-                createElements();
-                break;
+                player = playerLineup[i];
+                playerLineup = [];
+                countdown();
+                return main();
             }
         }
     };
 
-    /**
-     * @description Empties arrays
-     */
-    function cleanUp() {
-        playerLineup = [];
-        starsArray = [];
-        rocksArray = [];
-        allEnemies = [];
-        icons = [];
-    }
 
     /**
-     * @description
-     */
-    function createElements() {
-        createEnemies();
-        createIcons();
-        main();
-    }
-
-    /**
-     * @description Starts the timer
+     * Resets the timer
      */
     function countdown() {
         m = 1;
@@ -141,7 +126,7 @@ var Engine = (function engine(global) {
     }
 
     /**
-     * @description Creates and updates the timer
+     * Runs the timer
      */
     function showTime() {
         if (play) {
@@ -161,7 +146,7 @@ var Engine = (function engine(global) {
     }
 
     /**
-     * @description Draws an animation frame
+     * Draws the animation frame
      */
     function render() {
         var rowImages = [
@@ -192,7 +177,7 @@ var Engine = (function engine(global) {
     }
 
     /**
-     * @description Draws the player, enemies and obstacles
+     * Draws the player, enemies and obstacles
      */
     function renderEntities() {
         allEnemies.forEach(function (enemy) {
@@ -209,7 +194,7 @@ var Engine = (function engine(global) {
     }
 
     /**
-     * @description Clears the canvas and draws the initial animation frame
+     * Resets the game
      */
     function reset() {
         clearInterval(clock);
@@ -217,11 +202,16 @@ var Engine = (function engine(global) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         game = true;
         play = true;
+        icons = [];
+        timer = '';
+        starsArray = [];
+        rocksArray = [];
+        allEnemies = [];
         init();
     }
 
     /**
-     * @description Loads images
+     * Loads images
      */
     Resources.load([
         'images/stone-block.png',
@@ -239,7 +229,7 @@ var Engine = (function engine(global) {
     ]);
 
     /**
-     * @description
+     * Invokes a global function
      */
     Resources.onReady(init);
 
