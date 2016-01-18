@@ -1,19 +1,3 @@
-/* Engine.js
- * This file provides the game loop functionality (update entities and render),
- * draws the initial game board on the screen, and then calls the update and
- * render methods on your player and enemy objects (defined in your app.js).
- *
- * A game engine works by drawing the entire game screen over and over, kind of
- * like a flipbook you may have created as a kid. When your player moves across
- * the screen, it may look like just that image/character is moving or being
- * drawn but that is not the case. What's really happening is the entire "scene"
- * is being drawn over and over, presenting the illusion of animation.
- *
- * This engine is available globally via the Engine variable and it also makes
- * the canvas' context (ctx) object globally available to make writing app.js
- * a little simpler to work with.
- */
-
 /**
  * Game engine
  */
@@ -48,7 +32,7 @@ var Engine = (function engine(global) {
                 reset();
             } else {
                 gameOver(endText);
-                setTimeout(function () {
+                setTimeout(function() {
                     reset();
                 }, 3000);
             }
@@ -65,13 +49,12 @@ var Engine = (function engine(global) {
         createIcons();
     }
 
-
     /**
      * Updates the player and enemies
      * @param {number} dt - Time passed from last animation frame
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function (enemy) {
+        allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
         player.update();
@@ -82,14 +65,14 @@ var Engine = (function engine(global) {
      */
     function drawPlayers() {
         var rowPlayers = [
-        'images/char-cat-girl.png', // Players displated from the left
-        'images/char-boy.png',
-        'images/char-pink-girl.png',
-        'images/char-horn-girl.png',
-        'images/char-princess-girl.png'
+            'images/char-cat-girl.png', // Players displated from the left
+            'images/char-boy.png',
+            'images/char-pink-girl.png',
+            'images/char-horn-girl.png',
+            'images/char-princess-girl.png'
         ];
         createPlayers(rowPlayers);
-        playerLineup.forEach(function (player) {
+        playerLineup.forEach(function(player) {
             player.render(player);
         });
         document.addEventListener('click', choosePlayer);
@@ -113,8 +96,7 @@ var Engine = (function engine(global) {
                 return main();
             }
         }
-    };
-
+    }
 
     /**
      * Resets the timer
@@ -170,7 +152,7 @@ var Engine = (function engine(global) {
         if (timer) {
             ctx.fillText(timer, playersRow.x + 13, ctx.canvas.height - 30);
         }
-        icons.forEach(function (icon) {
+        icons.forEach(function(icon) {
             icon.render();
         });
         renderEntities();
@@ -180,13 +162,13 @@ var Engine = (function engine(global) {
      * Draws the player, enemies and obstacles
      */
     function renderEntities() {
-        allEnemies.forEach(function (enemy) {
+        allEnemies.forEach(function(enemy) {
             enemy.render();
         });
-        starsArray.forEach(function (star) {
+        starsArray.forEach(function(star) {
             star.render();
         });
-        rocksArray.forEach(function (rock) {
+        rocksArray.forEach(function(rock) {
             rock.render();
         });
         player.render();
