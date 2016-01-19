@@ -14,7 +14,7 @@ var star, enemy, icon, player, rock;
  * @constructor
  * @param {number} speed - Enemy speed
  */
-var Enemy = function(speed) {
+var Enemy = function (speed) {
     this.sprite = 'images/enemy-bug.png';
     this.vx = speed;
     this.width = 101;
@@ -44,34 +44,34 @@ function createEnemies() {
  * @param {number} b
  * @returns {number} Random number
  */
-Enemy.prototype.position = function(a, b) {
-    var number = Math.floor(Math.random() * a + 1);
-    var c = number * b;
-    return c;
-};
 
-/**
- * @description Calculates new coordinates for enemies
- */
-Enemy.prototype.checkPosition = function() {
-    if (this.x >= ctx.canvas.width) {
-        this.y = this.position(numRows, this.height) - 23;
-        if (this.name == 'speedy') {
-            this.x = -this.x * (Math.random() * 9 + 1);
-        } else {
-            this.x = this.x - this.x - this.width - 19;
+Enemy.prototype = {
+    constructor: Enemy,
+    position: function (a, b) {
+        var number = Math.floor(Math.random() * a + 1);
+        var c = number * b;
+        return c;
+    },
+    checkPosition: function () {
+        if (this.x >= ctx.canvas.width) {
+            this.y = this.position(numRows, this.height) - 23;
+            if (this.name == 'speedy') {
+                this.x = -this.x * (Math.random() * 9 + 1);
+            } else {
+                this.x = this.x - this.x - this.width - 19;
+            }
         }
+    },
+    update: function (dt) {
+        this.x = this.x + this.vx * dt;
+        this.checkPosition();
+    },
+    render: function () {
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
-};
+}
 
-/**
- * @description Updates enemy coordinates
- * @param {number} dt - Time passed from last animation frame
- */
-Enemy.prototype.update = function(dt) {
-    this.x = this.x + this.vx * dt;
-    this.checkPosition();
-};
+
 
 
 
@@ -82,7 +82,7 @@ Enemy.prototype.update = function(dt) {
  * @param {number} width - Canvas width
  * @param {number} height - Canvas height
  */
-var Board = function(y, width, height) {
+var Board = function (y, width, height) {
     this.x = 0;
     this.y = y;
     this.width = width;
@@ -96,12 +96,19 @@ var Board = function(y, width, height) {
  * @param {number} y - Obstacle y coordinate
  * @param {string} sprite - Obstacle image
  */
-var Obstacle = function(x, y, sprite) {
+var Obstacle = function (x, y, sprite) {
     this.sprite = sprite;
     this.x = x;
     this.y = y;
     this.width = 60;
     this.height = 60;
+};
+
+/**
+ * @description Draws obstacles
+ */
+Obstacle.prototype.render = function () {
+    Enemy.prototype.render.call(this);
 };
 
 /**
@@ -131,7 +138,7 @@ var key = new Obstacle(board.x, board.y, 'images/Key.png');
  * @param {number} x - Player x coordinate
  * @param {string} sprite - Player image
  */
-var Player = function(x, sprite) {
+var Player = function (x, sprite) {
     this.sprite = sprite;
     this.x = x;
     this.y = playersRow.y;
@@ -164,7 +171,7 @@ function createPlayers(rowPlayers) {
  * @param {string} sprite - Icon image
  * @param {string} name - Icon name
  */
-var Icon = function(x, sprite, name) {
+var Icon = function (x, sprite, name) {
     this.width = 30;
     this.height = 30;
     this.x = x;
@@ -189,161 +196,98 @@ function createIcons() {
  * @param {object} b
  * @returns {boolean}
  */
-Icon.prototype.collision = function(a, b) {
-    return Player.prototype.collision.call(this, a, b);
-};
+
+Icon.prototype = {
+    constructor: Icon,
+    collision: function (a, b) {
+        return Player.prototype.collision.call(this, a, b);
+    },
+    render: function () {
+        ctx.font = '30px fontello';
+        ctx.fillText(this.sprite, this.x, this.y);
+    }
+}
+
 
 /**
  * @description Resets player position and removes one life or point
  */
-Player.prototype.resetPosition = function() {
-    this.x = this.resetX;
-    this.y = this.resetY;
-};
 
-/**
- * @description Sets a new position for the player
- * @param {string} input - Keyboard key code
- */
-Player.prototype.handleInput = function(input) {
-    var currentX = this.x;
-    var currentY = this.y;
-    this.y = (input == 'up') ? this.y - tile.height : (input == 'down') ? this.y + tile.height : this.y;
-    this.x = (input == 'left') ? this.x - tile.width : (input == 'right') ? this.x + tile.width : this.x;
-    this.restrictMoves(currentX, currentY);
-};
-
-/**
- * @description Checks if player position is on the canvas and around obstacles
- * @param {number} x - Player x coordinate before keyboard event
- * @param {number} y - Player y coordinate before keyboard event
- */
-Player.prototype.restrictMoves = function(x, y) {
-    if (!this.collision(this, board) || this.points > 1 && this.collision(key, this)) {
-        this.y = y;
-        this.x = x;
-    }
-    this.obstacleCollision(rocksArray, x, y);
-    this.obstacleCollision(starsArray, x, y);
-};
-
-/**
- * @description Sets limits for player movement around obstacles
- * @param {array} arr - Obstacle array
- * @param {number} x - Player x coordinate before keyboard key pressed
- * @param {number} y - Player y coordinate before keyboard key pressed
- */
-Player.prototype.obstacleCollision = function(arr, x, y) {
-    for (var i = 0, j = arr.length; i < j; i++) {
-        if (this.collision(this, arr[i])) {
-            this.x = x;
+Player.prototype = {
+    constructor: Player,
+    resetPosition: function () {
+        this.x = this.resetX;
+        this.y = this.resetY;
+    },
+    handleInput: function (input) {
+        var currentX = this.x;
+        var currentY = this.y;
+        this.y = (input == 'up') ? this.y - tile.height : (input == 'down') ? this.y + tile.height : this.y;
+        this.x = (input == 'left') ? this.x - tile.width : (input == 'right') ? this.x + tile.width : this.x;
+        this.restrictMoves(currentX, currentY);
+    },
+    restrictMoves: function (x, y) {
+        if (!this.collision(this, board) || this.points > 1 && this.collision(key, this)) {
             this.y = y;
-            break;
+            this.x = x;
         }
-    }
-};
-
-/**
- * @description Checks if two objects overlap
- * @param {object} a
- * @param {object} b
- * @returns {boolean}
- */
-Player.prototype.collision = function(a, b) {
-    return a.x <= b.x + b.width &&
-        a.x + a.width >= b.x &&
-        a.y <= b.y + b.height &&
-        a.y + a.height >= b.y;
-};
-
-/**
- * @description Checks if player reached water. Checks player for collision with enemie. Checks status of the game
- */
-Player.prototype.update = function() {
-    if (this.y === board.y) {
-        this.createStars();
-    }
-    this.enemyCollision();
-    this.checkIfOver();
-};
-
-/**
- * @description Checks player lives and points. Updates game status
- * @returns {boolean}
- */
-Player.prototype.checkIfOver = function() {
-    if (!this.lives || !this.points) {
-        endText = (!this.lives) ? 'you lost' : 'you won';
-        play = false;
-        game = false;
-    }
-};
-
-/**
- * @description Creates a star. Resets player position. Substracts one point
- */
-Player.prototype.createStars = function() {
-    this.createObstacles(star, starsArray, this.x, this.y, 'images/Star.png');
-    this.resetPosition();
-    this.points--;
-};
-
-
-/**
- * @description Checks player for collision with enemies. Creates a rock. Resets player position. Substracts one point
- */
-Player.prototype.enemyCollision = function() {
-    for (var i = 0, j = allEnemies.length; i < j; i++) {
-        if (this.collision(this, allEnemies[i])) {
-            this.createObstacles(rock, rocksArray, this.x, this.y - 10, 'images/Rock.png');
-            this.resetPosition();
-            this.lives--;
-            break;
+        this.obstacleCollision(rocksArray, x, y);
+        this.obstacleCollision(starsArray, x, y);
+    },
+    obstacleCollision: function (arr, x, y) {
+        for (var i = 0, j = arr.length; i < j; i++) {
+            if (this.collision(this, arr[i])) {
+                this.x = x;
+                this.y = y;
+                break;
+            }
         }
+    },
+    collision: function (a, b) {
+        return a.x <= b.x + b.width &&
+            a.x + a.width >= b.x &&
+            a.y <= b.y + b.height &&
+            a.y + a.height >= b.y;
+    },
+    update: function () {
+        if (this.y === board.y) {
+            this.createStars();
+        }
+        this.enemyCollision();
+        this.checkIfOver();
+    },
+    checkIfOver: function () {
+        if (!this.lives || !this.points) {
+            endText = (!this.lives) ? 'you lost' : 'you won';
+            play = false;
+            game = false;
+        }
+    },
+    createStars: function () {
+        this.createObstacles(star, starsArray, this.x, this.y, 'images/Star.png');
+        this.resetPosition();
+        this.points--;
+    },
+    enemyCollision: function () {
+        for (var i = 0, j = allEnemies.length; i < j; i++) {
+            if (this.collision(this, allEnemies[i])) {
+                this.createObstacles(rock, rocksArray, this.x, this.y - 10, 'images/Rock.png');
+                this.resetPosition();
+                this.lives--;
+                break;
+            }
+        }
+    },
+    createObstacles: function (obstacle, arr, x, y, img) {
+        obstacle = new Obstacle(x, y, img);
+        arr.push(obstacle);
+    },
+    render: function () {
+        Enemy.prototype.render.call(this);
     }
-};
+}
 
-/**
- * @description Creates new obstacles and adds them to their arrays
- * @param {object} obstacle - Obstacle name
- * @param {array} arr - Obstacle array
- * @param {number} x - Obstacle x coordinate
- * @param {number} y - Obstacle y coordinate
- * @param {string} img - Obstacle image
- */
-Player.prototype.createObstacles = function(obstacle, arr, x, y, img) {
-    obstacle = new Obstacle(x, y, img);
-    arr.push(obstacle);
-};
 
-/**
- * @description Draws enemies
- */
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
-/**
- * @description Draws icons
- */
-Icon.prototype.render = function() {
-    ctx.font = '30px fontello';
-    ctx.fillText(this.sprite, this.x, this.y);
-};
-
-/**
- * @description Draws obstacles
- */
-Obstacle.prototype.render = function() {
-    Enemy.prototype.render.call(this);
-};
-
-/**
- * @description Draws player
- */
-Player.prototype.render = function() {
-    Enemy.prototype.render.call(this);
-};
 
 
 /**
@@ -410,7 +354,7 @@ function gameOver(text) {
  * @param {string} 'keyup' - Event type
  * @param {object} e - Event object
  */
-document.addEventListener('keyup', function(e) {
+document.addEventListener('keyup', function (e) {
     var allowedKeys = {
         37: 'left',
         38: 'up',
@@ -427,6 +371,6 @@ document.addEventListener('keyup', function(e) {
  * @param {string} 'mousedown' - Event type
  * @param {object} e - Event object
  */
-document.addEventListener('mousedown', function(e) {
+document.addEventListener('mousedown', function (e) {
     checkIcon(clickPosition(e));
 });
