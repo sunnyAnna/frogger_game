@@ -194,7 +194,7 @@ Icon.prototype.collision = function(a, b) {
 };
 
 /**
- * @description Resets player position and removes one live or point
+ * @description Resets player position and removes one life or point
  */
 Player.prototype.resetPosition = function() {
     this.x = this.resetX;
@@ -257,7 +257,7 @@ Player.prototype.collision = function(a, b) {
 };
 
 /**
- * @description Checks player for collisions
+ * @description Checks if player reached water. Checks player for collision with enemie. Checks status of the game
  */
 Player.prototype.update = function() {
     if (this.y === board.y) {
@@ -268,7 +268,7 @@ Player.prototype.update = function() {
 };
 
 /**
- * @description Checks player lives and points
+ * @description Checks player lives and points. Updates game status
  * @returns {boolean}
  */
 Player.prototype.checkIfOver = function() {
@@ -280,7 +280,7 @@ Player.prototype.checkIfOver = function() {
 };
 
 /**
- * @description Creates a star and resets player position
+ * @description Creates a star. Resets player position. Substracts one point
  */
 Player.prototype.createStars = function() {
     this.createObstacles(star, starsArray, this.x, this.y, 'images/Star.png');
@@ -290,7 +290,7 @@ Player.prototype.createStars = function() {
 
 
 /**
- * @description Checks player for collision with enemies
+ * @description Checks player for collision with enemies. Creates a rock. Resets player position. Substracts one point
  */
 Player.prototype.enemyCollision = function() {
     for (var i = 0, j = allEnemies.length; i < j; i++) {
@@ -317,14 +317,14 @@ Player.prototype.createObstacles = function(obstacle, arr, x, y, img) {
 };
 
 /**
- * @description Draws enemies on the canvas
+ * @description Draws enemies
  */
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 /**
- * @description Draws icons on the canvas
+ * @description Draws icons
  */
 Icon.prototype.render = function() {
     ctx.font = '30px fontello';
@@ -332,14 +332,14 @@ Icon.prototype.render = function() {
 };
 
 /**
- * @description Draws obstacles on the canvas
+ * @description Draws obstacles
  */
 Obstacle.prototype.render = function() {
     Enemy.prototype.render.call(this);
 };
 
 /**
- * @description Draws player on the canvas
+ * @description Draws player
  */
 Player.prototype.render = function() {
     Enemy.prototype.render.call(this);
@@ -347,7 +347,7 @@ Player.prototype.render = function() {
 
 
 /**
- * @description Checks which icon was clicked on
+ * @description Checks which icon was clicked on. Updates play/game status
  * @param {object} e - Event object
  * @returns {boolean} Updates game and/or play variable
  */
@@ -374,7 +374,7 @@ function checkIcon(e) {
 }
 
 /**
- * @description Updates an event object
+ * @description Updates the event object
  * @param {object} e - Event object
  * @returns {object} Event object with new parameters
  */

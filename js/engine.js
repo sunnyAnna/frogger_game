@@ -11,9 +11,7 @@ var Engine = (function engine(global) {
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
-    /**
-     * Updates the animation frame
-     */
+    // Updates the animation frame
     function main() {
         if (game) {
             var now = Date.now(),
@@ -39,9 +37,7 @@ var Engine = (function engine(global) {
         }
     }
 
-    /**
-     * Creates the player, enemies and icons
-     */
+    // Creates the player, enemies and icons
     function init() {
         lastTime = Date.now();
         drawPlayers();
@@ -49,10 +45,7 @@ var Engine = (function engine(global) {
         createIcons();
     }
 
-    /**
-     * Updates the player and enemies
-     * @param {number} dt - Time passed from last animation frame
-     */
+    // Updates the player and enemies
     function updateEntities(dt) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
@@ -60,8 +53,8 @@ var Engine = (function engine(global) {
         player.update();
     }
 
-    /**
-     * Creates an array of players
+    /* Creates an array of players
+     * Registers event listener for a mouse event
      */
     function drawPlayers() {
         var rowPlayers = [
@@ -78,10 +71,11 @@ var Engine = (function engine(global) {
         document.addEventListener('click', choosePlayer);
     }
 
-    /**
-     * Checks which player was clicked on
-     * @param {object} e - Event object
-     * @returns {function} main() - Global function
+    /* Checks which player was clicked on
+     * Assigns the player to the game
+     * Resets the player array
+     * Starts the timer
+     * Starts the game
      */
     function choosePlayer(e) {
         e = clickPosition(e);
@@ -98,18 +92,14 @@ var Engine = (function engine(global) {
         }
     }
 
-    /**
-     * Resets the timer
-     */
+    // Starts the timer
     function countdown() {
         m = 1;
         s = 59;
         clock = setInterval(showTime, 1000);
     }
 
-    /**
-     * Runs the timer
-     */
+    // Updates the timer
     function showTime() {
         if (play) {
             if (m === 0 && s < 0) {
@@ -127,9 +117,7 @@ var Engine = (function engine(global) {
         }
     }
 
-    /**
-     * Draws the animation frame
-     */
+    // Draws the animation frame
     function render() {
         var rowImages = [
                 'images/water-block.png', // Top row is water
@@ -158,9 +146,7 @@ var Engine = (function engine(global) {
         renderEntities();
     }
 
-    /**
-     * Draws the player, enemies and obstacles
-     */
+    // Draws the player, enemies and obstacles
     function renderEntities() {
         allEnemies.forEach(function(enemy) {
             enemy.render();
@@ -175,7 +161,10 @@ var Engine = (function engine(global) {
         key.render();
     }
 
-    /**
+    /* Resets the game
+     * Stops the timer
+     * Clears the canvas
+     * Resets enemy, obstacles and icons arrays
      * Resets the game
      */
     function reset() {
@@ -192,9 +181,7 @@ var Engine = (function engine(global) {
         init();
     }
 
-    /**
-     * Loads images
-     */
+    // Loads images
     Resources.load([
         'images/stone-block.png',
         'images/water-block.png',
@@ -210,9 +197,7 @@ var Engine = (function engine(global) {
         'images/Rock.png'
     ]);
 
-    /**
-     * Invokes a global function
-     */
+    // Calls the init function
     Resources.onReady(init);
 
     global.ctx = ctx;
