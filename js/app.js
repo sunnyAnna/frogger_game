@@ -1,3 +1,8 @@
+var game = {
+
+
+}
+
 var allEnemies = [];
 var starsArray = [];
 var playerLineup = [];
@@ -9,52 +14,25 @@ var game = true;
 var play = true;
 var star, enemy, icon, player, rock;
 
-/**
- * @description Enemy class
- * @constructor
- * @param {number} speed - Enemy speed
- */
-var Enemy = function (speed) {
-    this.sprite = 'images/enemy-bug.png';
-    this.vx = speed;
-    this.width = 101;
-    this.height = 83;
-    this.y = this.position(numRows, this.height) - 23;
-    this.x = -(this.position(numCols, this.width) - 19);
-};
 
-/**
- * @description Creates an array of enemies
- */
-function createEnemies() {
-    for (var i = 0; i <= 10; i++) {
-        if (i == 10) {
-            enemy = new Enemy(300);
-            enemy.name = 'speedy';
-        } else {
-            enemy = new Enemy(80);
-        }
-        allEnemies.push(enemy);
-    }
+var Entity = function (x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
 }
 
-/**
- * @description Generates a random number
- * @param {number} a
- * @param {number} b
- * @returns {number} Random number
- */
-
+function Enemy(speed) {
+    Entity.call(this, -(position(numCols, 101) - 19), position(numRows, 83) - 23, 101, 83);
+    this.vx = speed;
+    this.sprite = 'images/enemy-bug.png';
+}
+Enemy.prototype = Object.create(Entity.prototype);
 Enemy.prototype = {
     constructor: Enemy,
-    position: function (a, b) {
-        var number = Math.floor(Math.random() * a + 1);
-        var c = number * b;
-        return c;
-    },
     checkPosition: function () {
         if (this.x >= ctx.canvas.width) {
-            this.y = this.position(numRows, this.height) - 23;
+            this.y = position(numRows, this.height) - 23;
             if (this.name == 'speedy') {
                 this.x = -this.x * (Math.random() * 9 + 1);
             } else {
@@ -69,6 +47,24 @@ Enemy.prototype = {
     render: function () {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
+}
+
+function createEnemies() {
+    for (var i = 0; i <= 10; i++) {
+        if (i == 10) {
+            enemy = new Enemy(300);
+            enemy.name = 'speedy';
+        } else {
+            enemy = new Enemy(80);
+        }
+        allEnemies.push(enemy);
+    }
+}
+
+function position(a, b) {
+    var number = Math.floor(Math.random() * a + 1);
+    var c = number * b;
+    return c;
 }
 
 
@@ -184,10 +180,10 @@ var Icon = function (x, sprite, name) {
  * @description Creates an array of icons
  */
 function createIcons() {
-    icon = new Icon(playersRow.width - 83, '\ue808', 'pause');
-    icons.push(icon);
-    icon = new Icon(playersRow.width - 43, '\ue801', 'restart');
-    icons.push(icon);
+    icons = [
+        new Icon(playersRow.width - 83, '\ue808', 'pause'),
+        new Icon(playersRow.width - 43, '\ue801', 'restart')
+    ];
 }
 
 /**
