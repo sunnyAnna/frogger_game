@@ -4,7 +4,7 @@ An Arcade Game built with Javascript and HTML5 canvas.
 
 ### INSTRUCTIONS
 
-The game is being hosted on [this page](http://sunnyanna.github.io/frogger_game/).
+The game is being hosted on [this page](http://sunnyanna.github.io/the_key_game/).
 ```
 The game will start once you click on your choice of player.
 
