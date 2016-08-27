@@ -1,6 +1,6 @@
-# Frogger Game
+# The Key Game
 
-A spin on the classic Frogger Game. Built with Javascript and HTML5 canvas.
+An Arcade Game built with Javascript and HTML5 canvas.
 
 ### INSTRUCTIONS
 
